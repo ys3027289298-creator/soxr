@@ -60,3 +60,9 @@ if (NOT CMAKE_CROSSCOMPILING)
 endif ()
 
 add_test (1-delay-clear ${BIN}1-delay-clear)
+
+# resp-measure needs the in-tree pffft sources:
+if (TARGET resp-measure)
+  target_include_directories (resp-measure PRIVATE ${CMAKE_SOURCE_DIR}/src)
+  add_test (resp-measure ${BIN}resp-measure)
+endif ()

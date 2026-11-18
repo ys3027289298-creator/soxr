@@ -1,0 +1,266 @@
+Start testing: Nov 19 03:44 CST
+----------------------------------------------------------
+1/11 Testing: 20-bit-perfect-44100-192000
+1/11 Test: 20-bit-perfect-44100-192000
+Command: "/usr/bin/cmake" "-Dbits=20" "-DBIN=./" "-DEXAMPLES_BIN=../examples/" "-DlenToSkip=1" "-Dorate=192000" "-Dirate=44100" "-Dlen=16" "-P" "/home/ys/feedback/uidreczz28bDWQ4VfZl/tests/cmp-test.cmake"
+Directory: /home/ys/feedback/uidreczz28bDWQ4VfZl/build/tests
+"20-bit-perfect-44100-192000" start time: Nov 19 03:44 CST
+Output:
+----------------------------------------------------------
+-- 20.366551
+
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"20-bit-perfect-44100-192000" end time: Nov 19 03:44 CST
+"20-bit-perfect-44100-192000" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/11 Testing: 20-bit-perfect-192000-44100
+2/11 Test: 20-bit-perfect-192000-44100
+Command: "/usr/bin/cmake" "-Dbits=20" "-DBIN=./" "-DEXAMPLES_BIN=../examples/" "-DlenToSkip=1" "-Dorate=44100" "-Dirate=192000" "-Dlen=16" "-P" "/home/ys/feedback/uidreczz28bDWQ4VfZl/tests/cmp-test.cmake"
+Directory: /home/ys/feedback/uidreczz28bDWQ4VfZl/build/tests
+"20-bit-perfect-192000-44100" start time: Nov 19 03:44 CST
+Output:
+----------------------------------------------------------
+-- 21.187021
+
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"20-bit-perfect-192000-44100" end time: Nov 19 03:44 CST
+"20-bit-perfect-192000-44100" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/11 Testing: 20-bit-perfect-44100-65537
+3/11 Test: 20-bit-perfect-44100-65537
+Command: "/usr/bin/cmake" "-Dbits=20" "-DBIN=./" "-DEXAMPLES_BIN=../examples/" "-DlenToSkip=1" "-Dorate=65537" "-Dirate=44100" "-Dlen=16" "-P" "/home/ys/feedback/uidreczz28bDWQ4VfZl/tests/cmp-test.cmake"
+Directory: /home/ys/feedback/uidreczz28bDWQ4VfZl/build/tests
+"20-bit-perfect-44100-65537" start time: Nov 19 03:44 CST
+Output:
+----------------------------------------------------------
+-- 20.974860
+
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"20-bit-perfect-44100-65537" end time: Nov 19 03:44 CST
+"20-bit-perfect-44100-65537" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/11 Testing: 20-bit-perfect-65537-44100
+4/11 Test: 20-bit-perfect-65537-44100
+Command: "/usr/bin/cmake" "-Dbits=20" "-DBIN=./" "-DEXAMPLES_BIN=../examples/" "-DlenToSkip=1" "-Dorate=44100" "-Dirate=65537" "-Dlen=16" "-P" "/home/ys/feedback/uidreczz28bDWQ4VfZl/tests/cmp-test.cmake"
+Directory: /home/ys/feedback/uidreczz28bDWQ4VfZl/build/tests
+"20-bit-perfect-65537-44100" start time: Nov 19 03:44 CST
+Output:
+----------------------------------------------------------
+-- 20.875879
+
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"20-bit-perfect-65537-44100" end time: Nov 19 03:44 CST
+"20-bit-perfect-65537-44100" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/11 Testing: 28-bit-perfect-44100-192000
+5/11 Test: 28-bit-perfect-44100-192000
+Command: "/usr/bin/cmake" "-Dbits=28" "-DBIN=./" "-DEXAMPLES_BIN=../examples/" "-DlenToSkip=1" "-Dorate=192000" "-Dirate=44100" "-Dlen=16" "-P" "/home/ys/feedback/uidreczz28bDWQ4VfZl/tests/cmp-test.cmake"
+Directory: /home/ys/feedback/uidreczz28bDWQ4VfZl/build/tests
+"28-bit-perfect-44100-192000" start time: Nov 19 03:44 CST
+Output:
+----------------------------------------------------------
+-- 29.415037
+
+<end of output>
+Test time =   0.10 sec
+----------------------------------------------------------
+Test Passed.
+"28-bit-perfect-44100-192000" end time: Nov 19 03:44 CST
+"28-bit-perfect-44100-192000" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/11 Testing: 28-bit-perfect-192000-44100
+6/11 Test: 28-bit-perfect-192000-44100
+Command: "/usr/bin/cmake" "-Dbits=28" "-DBIN=./" "-DEXAMPLES_BIN=../examples/" "-DlenToSkip=1" "-Dorate=44100" "-Dirate=192000" "-Dlen=16" "-P" "/home/ys/feedback/uidreczz28bDWQ4VfZl/tests/cmp-test.cmake"
+Directory: /home/ys/feedback/uidreczz28bDWQ4VfZl/build/tests
+"28-bit-perfect-192000-44100" start time: Nov 19 03:44 CST
+Output:
+----------------------------------------------------------
+-- 30.000000
+
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"28-bit-perfect-192000-44100" end time: Nov 19 03:44 CST
+"28-bit-perfect-192000-44100" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/11 Testing: 28-bit-perfect-44100-65537
+7/11 Test: 28-bit-perfect-44100-65537
+Command: "/usr/bin/cmake" "-Dbits=28" "-DBIN=./" "-DEXAMPLES_BIN=../examples/" "-DlenToSkip=1" "-Dorate=65537" "-Dirate=44100" "-Dlen=16" "-P" "/home/ys/feedback/uidreczz28bDWQ4VfZl/tests/cmp-test.cmake"
+Directory: /home/ys/feedback/uidreczz28bDWQ4VfZl/build/tests
+"28-bit-perfect-44100-65537" start time: Nov 19 03:44 CST
+Output:
+----------------------------------------------------------
+-- 29.415037
+
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"28-bit-perfect-44100-65537" end time: Nov 19 03:44 CST
+"28-bit-perfect-44100-65537" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/11 Testing: 28-bit-perfect-65537-44100
+8/11 Test: 28-bit-perfect-65537-44100
+Command: "/usr/bin/cmake" "-Dbits=28" "-DBIN=./" "-DEXAMPLES_BIN=../examples/" "-DlenToSkip=1" "-Dorate=44100" "-Dirate=65537" "-Dlen=16" "-P" "/home/ys/feedback/uidreczz28bDWQ4VfZl/tests/cmp-test.cmake"
+Directory: /home/ys/feedback/uidreczz28bDWQ4VfZl/build/tests
+"28-bit-perfect-65537-44100" start time: Nov 19 03:44 CST
+Output:
+----------------------------------------------------------
+-- 30.000000
+
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"28-bit-perfect-65537-44100" end time: Nov 19 03:44 CST
+"28-bit-perfect-65537-44100" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/11 Testing: 1-delay-clear
+9/11 Test: 1-delay-clear
+Command: "/home/ys/feedback/uidreczz28bDWQ4VfZl/build/tests/1-delay-clear"
+Directory: /home/ys/feedback/uidreczz28bDWQ4VfZl/build/tests
+"1-delay-clear" start time: Nov 19 03:44 CST
+Output:
+----------------------------------------------------------
+ 9599  4410     0
+    0   729  3681
+    0   629  3781
+    0   529  3881
+    0   429  3981
+    0   329  4081
+    0   229  4181
+    0   129  4281
+    0    29  4381
+    0     0  4410
+ 9599  4410     0
+    0   729  3681
+    0   629  3781
+    0   529  3881
+    0   429  3981
+    0   329  4081
+    0   229  4181
+    0   129  4281
+    0    29  4381
+    0     0  4410
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"1-delay-clear" end time: Nov 19 03:44 CST
+"1-delay-clear" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/11 Testing: resp-measure
+10/11 Test: resp-measure
+Command: "/home/ys/feedback/uidreczz28bDWQ4VfZl/build/tests/resp-measure"
+Directory: /home/ys/feedback/uidreczz28bDWQ4VfZl/build/tests
+"resp-measure" start time: Nov 19 03:44 CST
+Output:
+----------------------------------------------------------
+resp-measure: 48000 -> 24000 Hz, sweep 10..23520 Hz + white noise, T=5.461 s
+
+LQ (precision 16 bits, theory rej 96 dB, passband to 8115 Hz)
+  passband ripple, dB p-p                0.0002775  [0 .. 1]  ok
+  stopband/alias level, dB                -141.999  [-300 .. -80]  ok
+  |H_sweep - H_theory| max, dB           0.0186321  [0 .. 0.5]  ok
+  |H_noise - H_theory| max, dB           0.0129604  [0 .. 0.5]  ok
+  group delay, output samples          1.42098e-08  [-1 .. 1]  ok
+  group delay (noise), samples         7.03428e-08  [-1 .. 1]  ok
+  group-delay resolution, samples      2.97711e-07  [0 .. 1]  ok
+  group delay theory, samples             0.000000  (reference)
+  => PASS
+
+MQ (precision 16 bits, theory rej 96 dB, passband to 10991 Hz)
+  passband ripple, dB p-p              0.000267145  [0 .. 1]  ok
+  stopband/alias level, dB                 -150.91  [-300 .. -80]  ok
+  |H_sweep - H_theory| max, dB            0.256331  [0 .. 0.5]  ok
+  |H_noise - H_theory| max, dB           0.0538493  [0 .. 0.5]  ok
+  group delay, output samples          4.89319e-10  [-1 .. 1]  ok
+  group delay (noise), samples         2.73178e-08  [-1 .. 1]  ok
+  group-delay resolution, samples      1.86721e-07  [0 .. 1]  ok
+  group delay theory, samples            -0.000000  (reference)
+  => PASS
+
+HQ (precision 20 bits, theory rej 120 dB, passband to 10965 Hz)
+  passband ripple, dB p-p              0.000264556  [0 .. 1]  ok
+  stopband/alias level, dB                -154.445  [-300 .. -80]  ok
+  |H_sweep - H_theory| max, dB            0.301308  [0 .. 0.5]  ok
+  |H_noise - H_theory| max, dB           0.0525029  [0 .. 0.5]  ok
+  group delay, output samples         -8.10732e-09  [-1 .. 1]  ok
+  group delay (noise), samples         1.92143e-08  [-1 .. 1]  ok
+  group-delay resolution, samples      1.87423e-07  [0 .. 1]  ok
+  group delay theory, samples            -0.000000  (reference)
+  => PASS
+
+VHQ (precision 28 bits, theory rej 169 dB, passband to 10936 Hz)
+  passband ripple, dB p-p              0.000264557  [0 .. 1]  ok
+  stopband/alias level, dB                -212.671  [-300 .. -80]  ok
+  |H_sweep - H_theory| max, dB            0.391779  [0 .. 0.5]  ok
+  |H_noise - H_theory| max, dB           0.0506368  [0 .. 0.5]  ok
+  group delay, output samples          7.34158e-09  [-1 .. 1]  ok
+  group delay (noise), samples         1.92082e-08  [-1 .. 1]  ok
+  group-delay resolution, samples      1.88119e-07  [0 .. 1]  ok
+  group delay theory, samples            -0.000000  (reference)
+  => PASS
+
+  total runtime, s                       0.0971031  [0 .. 5]  ok
+
+overall: PASS
+<end of output>
+Test time =   0.11 sec
+----------------------------------------------------------
+Test Passed.
+"resp-measure" end time: Nov 19 03:44 CST
+"resp-measure" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/11 Testing: lsr-bindings
+11/11 Test: lsr-bindings
+Command: "/home/ys/feedback/uidreczz28bDWQ4VfZl/build/examples/1a-lsr"
+Directory: /home/ys/feedback/uidreczz28bDWQ4VfZl/build/examples
+"lsr-bindings" start time: Nov 19 03:44 CST
+Output:
+----------------------------------------------------------
+ 0.09  0.57  0.92  0.75  0.07 -0.71 -1.05 -0.73
+ 0.03  0.73  0.99  0.69 -0.00 -0.69 -0.99 -0.71
+-0.01  0.71  1.01  0.71 -0.00 -0.71 -1.00 -0.70
+ 0.00  0.71  1.00  0.71  0.00 -0.71 -1.00 -0.71
+ 0.00  0.71  1.00  0.71 -0.00 -0.71 -1.00 -0.71
+-0.00  0.71  1.00  0.71  0.00 -0.71 -1.00 -0.71
+-0.00  0.71  1.00  0.71  0.00 -0.71 -1.00 -0.71
+-0.00  0.71  1.00  0.71  0.00 -0.71 -1.00 -0.71
+-0.00  0.71  1.00  0.71 -0.00 -0.71 -1.00 -0.71
+-0.00  0.70  1.00  0.71  0.00 -0.71 -1.01 -0.71
+ 0.01  0.71  0.99  0.69  0.00 -0.69 -0.99 -0.73
+-0.03  0.73  1.05  0.71 -0.07 -0.75 -0.92 -0.57
+/home/ys/feedback/uidreczz28bDWQ4VfZl/build/examples/1a-lsr no error
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"lsr-bindings" end time: Nov 19 03:44 CST
+"lsr-bindings" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Nov 19 03:44 CST
