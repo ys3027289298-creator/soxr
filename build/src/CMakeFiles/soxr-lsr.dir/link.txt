@@ -1,0 +1,1 @@
+/usr/bin/cc -fPIC  -fopenmp -O3 -DNDEBUG  -s -shared -Wl,-soname,libsoxr-lsr.so.0 -o libsoxr-lsr.so.0.1.9 "CMakeFiles/soxr-lsr.dir/soxr-lsr.c.o"  -Wl,-rpath,/home/ys/feedback/uidreczz28bDcoPSeL9/build/src: libsoxr.so.0.1.2 

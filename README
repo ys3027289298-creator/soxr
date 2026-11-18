@@ -11,6 +11,13 @@ bandwidth, aliasing, and rejection level parameters are all configurable;
 alternatively, simple `preset' configurations may be selected.  A
 variable-rate resampling mode of operation is also included.
 
+For asynchronous playback (where the audio device clock differs from the
+source clock by a few ppm), libsoxr also includes a drift-compensation
+loop: `soxr-drift.h` wraps a variable-rate resampler in a software
+phase-locked loop that holds the device buffer at a target fill level,
+slewing the resampling ratio smoothly rather than dropping or inserting
+samples.  See example 6 and the header documentation.
+
 The resampler is currently available either as part of `libsox' (the audio
 file-format and effect library), or stand-alone as `libsoxr' (this package).
 The interfaces to libsox and libsoxr are slightly different, with that of

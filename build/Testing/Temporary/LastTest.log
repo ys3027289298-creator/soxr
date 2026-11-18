@@ -1,0 +1,236 @@
+Start testing: Nov 19 07:43 CST
+----------------------------------------------------------
+1/11 Testing: 20-bit-perfect-44100-192000
+1/11 Test: 20-bit-perfect-44100-192000
+Command: "/usr/bin/cmake" "-Dbits=20" "-DBIN=./" "-DEXAMPLES_BIN=../examples/" "-DlenToSkip=1" "-Dorate=192000" "-Dirate=44100" "-Dlen=16" "-P" "/home/ys/feedback/uidreczz28bDcoPSeL9/tests/cmp-test.cmake"
+Directory: /home/ys/feedback/uidreczz28bDcoPSeL9/build/tests
+"20-bit-perfect-44100-192000" start time: Nov 19 07:43 CST
+Output:
+----------------------------------------------------------
+-- 20.366551
+
+<end of output>
+Test time =   0.10 sec
+----------------------------------------------------------
+Test Passed.
+"20-bit-perfect-44100-192000" end time: Nov 19 07:43 CST
+"20-bit-perfect-44100-192000" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/11 Testing: 20-bit-perfect-192000-44100
+2/11 Test: 20-bit-perfect-192000-44100
+Command: "/usr/bin/cmake" "-Dbits=20" "-DBIN=./" "-DEXAMPLES_BIN=../examples/" "-DlenToSkip=1" "-Dorate=44100" "-Dirate=192000" "-Dlen=16" "-P" "/home/ys/feedback/uidreczz28bDcoPSeL9/tests/cmp-test.cmake"
+Directory: /home/ys/feedback/uidreczz28bDcoPSeL9/build/tests
+"20-bit-perfect-192000-44100" start time: Nov 19 07:43 CST
+Output:
+----------------------------------------------------------
+-- 21.187021
+
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"20-bit-perfect-192000-44100" end time: Nov 19 07:43 CST
+"20-bit-perfect-192000-44100" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/11 Testing: 20-bit-perfect-44100-65537
+3/11 Test: 20-bit-perfect-44100-65537
+Command: "/usr/bin/cmake" "-Dbits=20" "-DBIN=./" "-DEXAMPLES_BIN=../examples/" "-DlenToSkip=1" "-Dorate=65537" "-Dirate=44100" "-Dlen=16" "-P" "/home/ys/feedback/uidreczz28bDcoPSeL9/tests/cmp-test.cmake"
+Directory: /home/ys/feedback/uidreczz28bDcoPSeL9/build/tests
+"20-bit-perfect-44100-65537" start time: Nov 19 07:43 CST
+Output:
+----------------------------------------------------------
+-- 20.974860
+
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"20-bit-perfect-44100-65537" end time: Nov 19 07:43 CST
+"20-bit-perfect-44100-65537" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/11 Testing: 20-bit-perfect-65537-44100
+4/11 Test: 20-bit-perfect-65537-44100
+Command: "/usr/bin/cmake" "-Dbits=20" "-DBIN=./" "-DEXAMPLES_BIN=../examples/" "-DlenToSkip=1" "-Dorate=44100" "-Dirate=65537" "-Dlen=16" "-P" "/home/ys/feedback/uidreczz28bDcoPSeL9/tests/cmp-test.cmake"
+Directory: /home/ys/feedback/uidreczz28bDcoPSeL9/build/tests
+"20-bit-perfect-65537-44100" start time: Nov 19 07:43 CST
+Output:
+----------------------------------------------------------
+-- 20.875879
+
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"20-bit-perfect-65537-44100" end time: Nov 19 07:43 CST
+"20-bit-perfect-65537-44100" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/11 Testing: 28-bit-perfect-44100-192000
+5/11 Test: 28-bit-perfect-44100-192000
+Command: "/usr/bin/cmake" "-Dbits=28" "-DBIN=./" "-DEXAMPLES_BIN=../examples/" "-DlenToSkip=1" "-Dorate=192000" "-Dirate=44100" "-Dlen=16" "-P" "/home/ys/feedback/uidreczz28bDcoPSeL9/tests/cmp-test.cmake"
+Directory: /home/ys/feedback/uidreczz28bDcoPSeL9/build/tests
+"28-bit-perfect-44100-192000" start time: Nov 19 07:43 CST
+Output:
+----------------------------------------------------------
+-- 29.415037
+
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"28-bit-perfect-44100-192000" end time: Nov 19 07:43 CST
+"28-bit-perfect-44100-192000" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/11 Testing: 28-bit-perfect-192000-44100
+6/11 Test: 28-bit-perfect-192000-44100
+Command: "/usr/bin/cmake" "-Dbits=28" "-DBIN=./" "-DEXAMPLES_BIN=../examples/" "-DlenToSkip=1" "-Dorate=44100" "-Dirate=192000" "-Dlen=16" "-P" "/home/ys/feedback/uidreczz28bDcoPSeL9/tests/cmp-test.cmake"
+Directory: /home/ys/feedback/uidreczz28bDcoPSeL9/build/tests
+"28-bit-perfect-192000-44100" start time: Nov 19 07:43 CST
+Output:
+----------------------------------------------------------
+-- 30.000000
+
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"28-bit-perfect-192000-44100" end time: Nov 19 07:43 CST
+"28-bit-perfect-192000-44100" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/11 Testing: 28-bit-perfect-44100-65537
+7/11 Test: 28-bit-perfect-44100-65537
+Command: "/usr/bin/cmake" "-Dbits=28" "-DBIN=./" "-DEXAMPLES_BIN=../examples/" "-DlenToSkip=1" "-Dorate=65537" "-Dirate=44100" "-Dlen=16" "-P" "/home/ys/feedback/uidreczz28bDcoPSeL9/tests/cmp-test.cmake"
+Directory: /home/ys/feedback/uidreczz28bDcoPSeL9/build/tests
+"28-bit-perfect-44100-65537" start time: Nov 19 07:43 CST
+Output:
+----------------------------------------------------------
+-- 29.415037
+
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"28-bit-perfect-44100-65537" end time: Nov 19 07:43 CST
+"28-bit-perfect-44100-65537" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/11 Testing: 28-bit-perfect-65537-44100
+8/11 Test: 28-bit-perfect-65537-44100
+Command: "/usr/bin/cmake" "-Dbits=28" "-DBIN=./" "-DEXAMPLES_BIN=../examples/" "-DlenToSkip=1" "-Dorate=44100" "-Dirate=65537" "-Dlen=16" "-P" "/home/ys/feedback/uidreczz28bDcoPSeL9/tests/cmp-test.cmake"
+Directory: /home/ys/feedback/uidreczz28bDcoPSeL9/build/tests
+"28-bit-perfect-65537-44100" start time: Nov 19 07:43 CST
+Output:
+----------------------------------------------------------
+-- 30.000000
+
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"28-bit-perfect-65537-44100" end time: Nov 19 07:43 CST
+"28-bit-perfect-65537-44100" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/11 Testing: 1-delay-clear
+9/11 Test: 1-delay-clear
+Command: "/home/ys/feedback/uidreczz28bDcoPSeL9/build/tests/1-delay-clear"
+Directory: /home/ys/feedback/uidreczz28bDcoPSeL9/build/tests
+"1-delay-clear" start time: Nov 19 07:43 CST
+Output:
+----------------------------------------------------------
+ 9599  4410     0
+    0   729  3681
+    0   629  3781
+    0   529  3881
+    0   429  3981
+    0   329  4081
+    0   229  4181
+    0   129  4281
+    0    29  4381
+    0     0  4410
+ 9599  4410     0
+    0   729  3681
+    0   629  3781
+    0   529  3881
+    0   429  3981
+    0   329  4081
+    0   229  4181
+    0   129  4281
+    0    29  4381
+    0     0  4410
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"1-delay-clear" end time: Nov 19 07:43 CST
+"1-delay-clear" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/11 Testing: drift-test
+10/11 Test: drift-test
+Command: "/home/ys/feedback/uidreczz28bDcoPSeL9/build/tests/drift-test"
+Directory: /home/ys/feedback/uidreczz28bDcoPSeL9/build/tests
+"drift-test" start time: Nov 19 07:43 CST
+Output:
+----------------------------------------------------------
+Drift compensation test: 10 hours, input block=882 frames (44100 Hz)
+iterations/session=1800000
+Session 1: device +5 ppm, nominal start
+  [PASS] 10 h end-point phase error < 1 sample        got=0.07439889465 want=1
+  [PASS] settled ratio matches +5 ppm clock           got=0.91874544 want=0.918745
+  [PASS] slew limit 5e-5 per update never exceeded    got=5e-05 want=5e-05
+  [PASS] steady-state ratio jitter < 1e-4             got=5.184631474e-09 want=0.0001
+Session 2: device -20 ppm (slow), 50-frame initial FIFO deficit
+  [PASS] 10 h end-point phase error < 1 sample        got=-0.1413488527 want=1
+  [PASS] settled ratio matches -20 ppm clock          got=0.9187682789 want=0.918768
+  [PASS] slew limit 5e-5 per update never exceeded    got=5e-05 want=5e-05
+Session 3: drift step +2 -> +15 ppm after 3 hours
+  [PASS] post-step end-point phase error < 1 sample   got=0.07944964157 want=1
+  [PASS] settled ratio tracks the new clock           got=0.918736267 want=0.918736
+Overhead measurement:
+  resample=0.8274s control=0.000240s over 20000 blocks
+  [PASS] control overhead < 5% of resampling          got=0.0002900508918 want=0.05
+
+All checks passed
+<end of output>
+Test time = 239.52 sec
+----------------------------------------------------------
+Test Passed.
+"drift-test" end time: Nov 19 07:46 CST
+"drift-test" time elapsed: 00:03:59
+----------------------------------------------------------
+
+11/11 Testing: lsr-bindings
+11/11 Test: lsr-bindings
+Command: "/home/ys/feedback/uidreczz28bDcoPSeL9/build/examples/1a-lsr"
+Directory: /home/ys/feedback/uidreczz28bDcoPSeL9/build/examples
+"lsr-bindings" start time: Nov 19 07:46 CST
+Output:
+----------------------------------------------------------
+ 0.09  0.57  0.92  0.75  0.07 -0.71 -1.05 -0.73
+ 0.03  0.73  0.99  0.69 -0.00 -0.69 -0.99 -0.71
+-0.01  0.71  1.01  0.71 -0.00 -0.71 -1.00 -0.70
+ 0.00  0.71  1.00  0.71  0.00 -0.71 -1.00 -0.71
+ 0.00  0.71  1.00  0.71 -0.00 -0.71 -1.00 -0.71
+-0.00  0.71  1.00  0.71  0.00 -0.71 -1.00 -0.71
+-0.00  0.71  1.00  0.71  0.00 -0.71 -1.00 -0.71
+-0.00  0.71  1.00  0.71  0.00 -0.71 -1.00 -0.71
+-0.00  0.71  1.00  0.71 -0.00 -0.71 -1.00 -0.71
+-0.00  0.70  1.00  0.71  0.00 -0.71 -1.01 -0.71
+ 0.01  0.71  0.99  0.69  0.00 -0.69 -0.99 -0.73
+-0.03  0.73  1.05  0.71 -0.07 -0.75 -0.92 -0.57
+/home/ys/feedback/uidreczz28bDcoPSeL9/build/examples/1a-lsr no error
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"lsr-bindings" end time: Nov 19 07:46 CST
+"lsr-bindings" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Nov 19 07:46 CST

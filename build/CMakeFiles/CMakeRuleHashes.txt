@@ -1,0 +1,8 @@
+# Hashes of file build rules.
+294e59b89a1848598e2b5112d8c04cd6 CMakeFiles/check
+71c8753d04c491b6d5592b2f1297a334 CMakeFiles/deinstall
+e7c2e441881a58c2320e6dd7975463c4 CMakeFiles/distclean
+06ca2067c6bb21ad4c1ef27d88ac5ddd tests/CMakeFiles/test-vectors
+0608bdbad7edee6f27bec5979e094b1c tests/ref-192000.s32
+5860e885fee813624b021669b196a2e5 tests/ref-44100.s32
+170e31a583298e050fb62512a270d562 tests/ref-65537.s32

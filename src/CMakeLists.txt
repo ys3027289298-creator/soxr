@@ -40,6 +40,10 @@ endif ()
 
 set (SOURCES ${PROJECT_NAME}.c data-io)
 
+if (WITH_VR32)
+  list (APPEND SOURCES soxr-drift)
+endif ()
+
 if (WITH_CR32 OR WITH_CR32S OR WITH_CR64 OR WITH_CR64S)
   list (APPEND SOURCES dbesi0 filter fft4g64 cr)
 endif ()
@@ -83,7 +87,7 @@ set_target_properties (${PROJECT_NAME} PROPERTIES
   SOVERSION ${SO_VERSION_MAJOR}
   INSTALL_NAME_DIR ${LIB_INSTALL_DIR}
   LINK_INTERFACE_LIBRARIES ""
-  PUBLIC_HEADER "${PROJECT_NAME}.h")
+  PUBLIC_HEADER "${PROJECT_NAME}.h;${PROJECT_NAME}-drift.h")
 if (BUILD_FRAMEWORK)
   set_target_properties (${PROJECT_NAME} PROPERTIES FRAMEWORK TRUE)
 elseif (NOT WIN32)

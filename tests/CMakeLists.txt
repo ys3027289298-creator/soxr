@@ -60,3 +60,7 @@ if (NOT CMAKE_CROSSCOMPILING)
 endif ()
 
 add_test (1-delay-clear ${BIN}1-delay-clear)
+
+if (WITH_VR32)
+  add_test (drift-test ${BIN}drift-test)
+endif ()

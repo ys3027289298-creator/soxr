@@ -90,6 +90,7 @@
 		<File RelativePath="..\src\util32s.c" />
 		<File RelativePath="..\src\util64s.c" />
 		<File RelativePath="..\src\soxr.c" />
+		<File RelativePath="..\src\soxr-drift.c" />
 		<File RelativePath="..\src\vr32.c" />
 	</Files>
 	<Globals>

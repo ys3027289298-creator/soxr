@@ -1,3 +1,9 @@
+Unreleased
+  * Add asynchronous clock-drift compensation (soxr-drift.h): a PI control
+    loop over a variable-rate resampler that holds a playback device buffer at
+    its target fill level, with a sliding-window phase estimator, slew-limited
+    ratio changes and ppm clamping.  See example 6.
+
 Version 0.1.3 (2018-02-24)
   * SIMD enhancements: SSE, AVX, Neon.
   * Improve support for clang, ARM, and cross-compilation.
