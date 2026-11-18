@@ -74,6 +74,14 @@ endif ()
 
 
 
+# Anti-aliasing filter designer tool:
+
+add_executable (filter-designer filter-designer.c filter.c dbesi0.c fft4g64.c fft4g32.c)
+target_link_libraries (filter-designer ${LIBM_LIBRARIES})
+install (TARGETS filter-designer RUNTIME DESTINATION ${BIN_INSTALL_DIR})
+
+
+
 # Libsoxr:
 
 add_library (${PROJECT_NAME} ${LIB_TYPE} ${SOURCES})

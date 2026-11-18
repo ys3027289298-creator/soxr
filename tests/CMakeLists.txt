@@ -60,3 +60,15 @@ if (NOT CMAKE_CROSSCOMPILING)
 endif ()
 
 add_test (1-delay-clear ${BIN}1-delay-clear)
+
+# Anti-aliasing filter designer: measured stop-band attenuation must be
+# within 1 dB of the design value, and one design must take < 0.5 s:
+if (TARGET filter-designer)
+  add_test (NAME filter-designer-1 COMMAND filter-designer --fp 0.40 --fs 0.50 --att  60 --check)
+  add_test (NAME filter-designer-2 COMMAND filter-designer --fp 0.45 --fs 0.50 --att 100 --check)
+  add_test (NAME filter-designer-3 COMMAND filter-designer --fp 0.30 --fs 0.42 --att  80 --check)
+  add_test (NAME filter-designer-4 COMMAND filter-designer --fp 0.42 --fs 0.46 --att 120 --check)
+  add_test (NAME filter-designer-export COMMAND filter-designer
+    --rate 48000 --fp 20000 --fs 22000 --att 90 --tradeoffs --check
+    --out fd-test.txt --verify fd-test.txt)
+endif ()
