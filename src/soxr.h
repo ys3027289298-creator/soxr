@@ -204,6 +204,47 @@ SOXR soxr_error_t soxr_set_io_ratio(soxr_t, double io_ratio, size_t slew_len);
 
 
 
+/* Configure dithering & noise-shaping of the quantisation performed when the
+ * output datatype (soxr_io_spec_t.otype) is an integer type.  May be called
+ * at any time after soxr_create and takes effect from the next output sample;
+ * if never called, the default is TPDF dither at the full bit-depth of an
+ * INT16 output (no dither for INT32), as per previous versions of this
+ * library.  Dithering is not applicable to floating-point output datatypes.
+ *
+ * `bits' is the quantisation bit-depth: 8, 16, 24 or 32 (but not greater
+ * than the bit-depth of the output datatype; e.g. use SOXR_INT32_I output
+ * for 24-bit).  Values are quantised to `bits' and stored, MSB-aligned, in
+ * the output datatype.
+ *
+ * `shaping' selects noise-shaping of the quantisation error:
+ *   SOXR_NOISE_SHAPING_NONE   flat (TPDF dither only)
+ *   SOXR_NOISE_SHAPING_FIRST  1st-order: reduces in-band noise by >6 dB
+ *   SOXR_NOISE_SHAPING_SECOND 2nd-order: greater in-band reduction
+ *
+ * If `seed' is non-NULL, *seed seeds the dither generator; given the same
+ * seed (and otherwise identical configuration and input), output is
+ * sample-identical across runs.  If `seed' is NULL, an arbitrary seed is
+ * used.  Note that SOXR_NO_DITHER (below) disables dithering altogether,
+ * overriding this function.
+ *
+ * N.B. with the single-precision resampling engine (used when the quality
+ * precision is <= 20 bits and SOXR_DOUBLE_PRECISION is not set), the
+ * effective output resolution is limited to about 24 bits; use a
+ * double-precision quality setting for 24/32-bit dither to be fully
+ * effective. */
+
+SOXR soxr_error_t soxr_set_dither(
+    soxr_t resampler,
+    unsigned bits,
+    unsigned shaping,
+    unsigned long const * seed);
+
+#define SOXR_NOISE_SHAPING_NONE   0u
+#define SOXR_NOISE_SHAPING_FIRST  1u
+#define SOXR_NOISE_SHAPING_SECOND 2u
+
+
+
 /* -------------------------- API type definitions -------------------------- */
 
 typedef enum {          /* Datatypes supported for I/O to/from the resampler: */
@@ -232,7 +273,7 @@ struct soxr_io_spec {                                            /* Typically */
 };
 
 #define SOXR_TPDF              0     /* Applicable only if otype is INT16. */
-#define SOXR_NO_DITHER         8u    /* Disable the above. */
+#define SOXR_NO_DITHER         8u    /* Disable the above (and soxr_set_dither). */
 
 
 

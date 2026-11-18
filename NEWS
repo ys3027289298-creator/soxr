@@ -1,3 +1,11 @@
+Version x.x.x (unreleased)
+  * Add soxr_set_dither(): for integer output types, quantisation bit-depth
+    is now selectable (8/16/24/32 bits, MSB-aligned in the output container),
+    with TPDF dither, optional 1st/2nd-order noise-shaping (>= 6 dB in-band
+    noise reduction), and an injectable seed for sample-identical output
+    across runs.  Default behaviour (TPDF dither for INT16 output only) is
+    unchanged.
+
 Version 0.1.3 (2018-02-24)
   * SIMD enhancements: SSE, AVX, Neon.
   * Improve support for clang, ARM, and cross-compilation.

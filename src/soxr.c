@@ -8,6 +8,7 @@
 
 #include "soxr.h"
 #include "data-io.h"
+#include "dither.h"
 #include "internal.h"
 
 #if AVUTIL_FOUND
@@ -64,7 +65,7 @@ typedef void * resampler_shared_t; /* Between channels. */
 typedef void (* deinterleave_t)(sample_t * * dest,
     soxr_datatype_t data_type, void const * * src0, size_t n, unsigned ch);
 typedef size_t (* interleave_t)(soxr_datatype_t data_type, void * * dest,
-    sample_t const * const * src, size_t, unsigned, unsigned long *);
+    sample_t const * const * src, size_t, unsigned, soxr_dither_t *, unsigned);
 
 struct soxr {
   unsigned num_channels;
@@ -86,7 +87,10 @@ struct soxr {
 
   void * * channel_ptrs;
   size_t clips;
-  unsigned long seed;
+  soxr_dither_t * dither;   /* Engine state, created lazily; may be NULL. */
+  unsigned dither_bits;     /* 0 = not configured (legacy default). */
+  unsigned dither_shaping;
+  unsigned long dither_seed;
   int flushing;
 };
 
@@ -428,7 +432,7 @@ soxr_t soxr_create(
     p->io_spec.scale *= datatype_full_scale[p->io_spec.otype & 3] /
                         datatype_full_scale[p->io_spec.itype & 3];
 
-    p->seed = (unsigned long)time(0) ^ (unsigned long)(size_t)p;
+    p->dither_seed = (unsigned long)time(0) ^ (unsigned long)(size_t)p;
 
 #if WITH_CR32 || WITH_CR32S || WITH_VR32
     if (0
@@ -502,8 +506,57 @@ static void soxr_delete0(soxr_t p)
   free(p->resamplers);
   free(p->channel_ptrs);
   free(p->shared);
+  _soxr_dither_delete(p->dither);
 
   memset(p, 0, sizeof(*p));
+}
+
+
+
+/* Determine (creating its engine if necessary) the dithering to be applied
+ * to the output; returns NULL if no dithering is to be applied.  Must be
+ * called from single-threaded context only (engine creation is not locked). */
+static soxr_dither_t * soxr_get_dither(soxr_t p)
+{
+  unsigned otype = p->io_spec.otype & 3;
+  unsigned bits;
+  if (p->io_spec.flags & SOXR_NO_DITHER)
+    return 0;
+  if (otype != SOXR_INT16 && otype != SOXR_INT32)
+    return 0;
+  bits = p->dither_bits? p->dither_bits : otype == SOXR_INT16? 16 : 0;
+  if (!bits)
+    return 0;
+  if (!p->dither && !(p->dither = _soxr_dither_create(p->num_channels,
+      (soxr_datatype_t)otype, bits, p->dither_shaping, p->dither_seed)))
+    p->error = "malloc failed";
+  return p->dither;
+}
+
+
+
+soxr_error_t soxr_set_dither(soxr_t p, unsigned bits, unsigned shaping,
+    unsigned long const * seed)
+{
+  unsigned otype, container_bits;
+  if (!p)                 return "invalid soxr_t pointer";
+  if (p->error)           return p->error;
+  if (bits != 8 && bits != 16 && bits != 24 && bits != 32)
+                          return "invalid dither bit-depth (use 8, 16, 24 or 32)";
+  if (shaping > 2)        return "invalid noise-shaping order (use 0, 1 or 2)";
+  otype = p->io_spec.otype & 3;
+  if (otype != SOXR_INT16 && otype != SOXR_INT32)
+                          return "dither requires an integer output datatype";
+  container_bits = otype == SOXR_INT16? 16 : 32;
+  if (bits > container_bits)
+                          return "dither bit-depth exceeds that of output datatype";
+  p->dither_bits = bits;
+  p->dither_shaping = shaping;
+  if (seed)
+    p->dither_seed = *seed;
+  _soxr_dither_delete(p->dither);  /* Force re-creation with the new config. */
+  p->dither = 0;
+  return 0;
 }
 
 
@@ -610,6 +663,9 @@ soxr_error_t soxr_clear(soxr_t p) /* TODO: this, properly. */
     p->io_spec = tmp.io_spec;
     p->num_channels = tmp.num_channels;
     p->input_fn_state = tmp.input_fn_state;
+    p->dither_bits = tmp.dither_bits;
+    p->dither_shaping = tmp.dither_shaping;
+    p->dither_seed = tmp.dither_seed;
     memcpy(p->control_block, tmp.control_block, sizeof(p->control_block));
     p->deinterleave = tmp.deinterleave;
     p->interleave = tmp.interleave;
@@ -653,7 +709,8 @@ static size_t soxr_input(soxr_t p, void const * in, size_t len)
 
 
 
-static size_t soxr_output_1ch(soxr_t p, unsigned i, soxr_buf_t dest, size_t len, bool separated)
+static size_t soxr_output_1ch(soxr_t p, unsigned i, soxr_buf_t dest,
+    size_t len, bool separated, soxr_dither_t * dither)
 {
   sample_t const * src;
   if (p->flushing)
@@ -661,8 +718,7 @@ static size_t soxr_output_1ch(soxr_t p, unsigned i, soxr_buf_t dest, size_t len,
   resampler_process(p->resamplers[i], len);
   src = resampler_output(p->resamplers[i], NULL, &len);
   if (separated)
-    p->clips += (p->interleave)(p->io_spec.otype, &dest, &src,
-      len, 1, (p->io_spec.flags & SOXR_NO_DITHER)? 0 : &p->seed);
+    p->clips += (p->interleave)(p->io_spec.otype, &dest, &src, len, 1, dither, i);
   else p->channel_ptrs[i] = (void /* const */ *)src;
   return len;
 }
@@ -674,23 +730,24 @@ static size_t soxr_output_no_callback(soxr_t p, soxr_buf_t out, size_t len)
   unsigned u;
   size_t done = 0;
   bool separated = !!(p->io_spec.otype & SOXR_SPLIT);
+  soxr_dither_t * dither = soxr_get_dither(p);
 #if defined _OPENMP
   int i;
   if (!p->runtime_spec.num_threads && p->num_channels > 1)
 #pragma omp parallel for
   for (i = 0; i < (int)p->num_channels; ++i) {
     size_t done1;
-    done1 = soxr_output_1ch(p, (unsigned)i, ((soxr_bufs_t)out)[i], len, separated);
+    done1 = soxr_output_1ch(p, (unsigned)i, ((soxr_bufs_t)out)[i], len, separated, dither);
     if (!i)
       done = done1;
   } else
 #endif
   for (u = 0; u < p->num_channels; ++u)
-    done = soxr_output_1ch(p, u, ((soxr_bufs_t)out)[u], len, separated);
+    done = soxr_output_1ch(p, u, ((soxr_bufs_t)out)[u], len, separated, dither);
 
   if (!separated)
     p->clips += (p->interleave)(p->io_spec.otype, &out, (sample_t const * const *)p->channel_ptrs,
-        done, p->num_channels, (p->io_spec.flags & SOXR_NO_DITHER)? 0 : &p->seed);
+        done, p->num_channels, dither, 0);
   return done;
 }
 
@@ -775,6 +832,7 @@ soxr_error_t soxr_process(soxr_t p,
   if (!out && !in)
     idone = ilen;
   else if (p->io_spec.itype & p->io_spec.otype & SOXR_SPLIT) { /* Both i & o */
+    soxr_dither_t * dither = soxr_get_dither(p);
 #if defined _OPENMP
     int i;
     if (!p->runtime_spec.num_threads && p->num_channels > 1)
@@ -783,7 +841,7 @@ soxr_error_t soxr_process(soxr_t p,
       size_t done;
       if (in)
         soxr_input_1ch(p, (unsigned)i, ((soxr_cbufs_t)in)[i], ilen);
-      done = soxr_output_1ch(p, (unsigned)i, ((soxr_bufs_t)out)[i], olen, true);
+      done = soxr_output_1ch(p, (unsigned)i, ((soxr_bufs_t)out)[i], olen, true, dither);
       if (!i)
         odone = done;
     } else
@@ -791,7 +849,7 @@ soxr_error_t soxr_process(soxr_t p,
     for (u = 0; u < p->num_channels; ++u) {
       if (in)
         soxr_input_1ch(p, u, ((soxr_cbufs_t)in)[u], ilen);
-      odone = soxr_output_1ch(p, u, ((soxr_bufs_t)out)[u], olen, true);
+      odone = soxr_output_1ch(p, u, ((soxr_bufs_t)out)[u], olen, true, dither);
     }
     idone = ilen;
   }

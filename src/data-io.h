@@ -5,6 +5,7 @@
 #define soxr_data_io_included
 
 #include "soxr.h"
+#include "dither.h"
 
 void _soxr_deinterleave(
     double * * dest,
@@ -26,7 +27,8 @@ size_t /* clips */ _soxr_interleave(
     double const * const * src,
     size_t n,
     unsigned ch,
-    unsigned long * seed);
+    soxr_dither_t * dither,
+    unsigned ch0);
 
 size_t /* clips */ _soxr_interleave_f(
     soxr_datatype_t data_type,
@@ -34,6 +36,7 @@ size_t /* clips */ _soxr_interleave_f(
     float const * const * src,
     size_t n,
     unsigned ch,
-    unsigned long * seed);
+    soxr_dither_t * dither,
+    unsigned ch0);
 
 #endif
