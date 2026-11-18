@@ -574,6 +574,92 @@ STATIC void _soxr_close(rate_t * p)
   }
 }
 
+STATIC size_t _soxr_save_state(rate_t * p, void * buf0)
+{
+  char * buf = (char *)buf0;
+  size_t pos = 0;
+  int i;
+  int32_t num_stages = p->num_stages, flushing = p->flushing;
+#define SAVE(src, n) do { \
+    if (buf) memcpy(buf + pos, src, (size_t)(n)); \
+    pos += (size_t)(n); \
+  } while (0)
+
+  SAVE(&p->samples_in , sizeof(p->samples_in ));
+  SAVE(&p->samples_out, sizeof(p->samples_out));
+  SAVE(&flushing  , sizeof(flushing  ));
+  SAVE(&num_stages, sizeof(num_stages));
+  for (i = 0; i <= p->num_stages; ++i) {
+    stage_t * s = &p->stages[i];
+    if (i < p->num_stages) {
+      uint64_t at_ls = s->at.fix.ls.all;
+      int64_t  at_ms = s->at.fix.ms.all;
+      int32_t  remM = s->remM, input_size = s->input_size;
+      SAVE(&at_ls, sizeof(at_ls));
+      SAVE(&at_ms, sizeof(at_ms));
+      SAVE(&remM, sizeof(remM));
+      SAVE(&input_size, sizeof(input_size));
+    }
+    {
+      uint32_t item_size = (uint32_t)s->fifo.item_size;
+      uint32_t occupancy = (uint32_t)fifo_occupancy(&s->fifo);
+      SAVE(&item_size, sizeof(item_size));
+      SAVE(&occupancy, sizeof(occupancy));
+      if (occupancy)
+        SAVE(s->fifo.data + s->fifo.begin, (size_t)occupancy * s->fifo.item_size);
+    }
+  }
+#undef SAVE
+  return pos;
+}
+
+STATIC char const * _soxr_restore_state(rate_t * p, void const * buf0,
+    size_t len, size_t * consumed)
+{
+  char const * buf = (char const *)buf0;
+  size_t pos = 0;
+  int i;
+  int32_t num_stages, flushing;
+#define LOAD(dest, n) do { \
+    if (pos + (size_t)(n) > len) return "corrupt state (truncated)"; \
+    memcpy(dest, buf + pos, (size_t)(n)); \
+    pos += (size_t)(n); \
+  } while (0)
+
+  LOAD(&p->samples_in , sizeof(p->samples_in ));
+  LOAD(&p->samples_out, sizeof(p->samples_out));
+  LOAD(&flushing  , sizeof(flushing  ));
+  LOAD(&num_stages, sizeof(num_stages));
+  p->flushing = flushing;
+  if (num_stages != p->num_stages)
+    return "state/config mismatch";
+  for (i = 0; i <= p->num_stages; ++i) {
+    stage_t * s = &p->stages[i];
+    if (i < p->num_stages) {
+      LOAD(&s->at.fix.ls.all, sizeof(s->at.fix.ls.all));
+      LOAD(&s->at.fix.ms.all, sizeof(s->at.fix.ms.all));
+      LOAD(&s->remM, sizeof(s->remM));
+      LOAD(&s->input_size, sizeof(s->input_size));
+    }
+    {
+      uint32_t item_size, occupancy;
+      LOAD(&item_size, sizeof(item_size));
+      LOAD(&occupancy, sizeof(occupancy));
+      if (item_size != (uint32_t)s->fifo.item_size)
+        return "state/config mismatch";
+      if (pos + (size_t)occupancy * item_size > len)
+        return "corrupt state (truncated)";
+      fifo_clear(&s->fifo);
+      if (occupancy && !fifo_write(&s->fifo, (FIFO_SIZE_T)occupancy, buf + pos))
+        return "out of memory";
+      pos += (size_t)occupancy * item_size;
+    }
+  }
+#undef LOAD
+  *consumed = pos;
+  return 0;
+}
+
 #if defined SOXR_LIB
 STATIC double _soxr_delay(rate_t * p)
 {

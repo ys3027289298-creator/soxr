@@ -1,0 +1,1 @@
+/usr/bin/c++  -fopenmp  -Wconversion -Wall -Wextra       -pedantic -Wundef -Wpointer-arith -Wno-long-long -O3 -DNDEBUG -rdynamic "CMakeFiles/2-stream.dir/2-stream.C.o" -o 2-stream  -Wl,-rpath,/home/ys/feedback/uidreczz28bD6xULNCy/build/src ../src/libsoxr.so.0.1.2 -lm 

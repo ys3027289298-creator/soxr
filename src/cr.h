@@ -173,6 +173,14 @@ void _soxr_flush(struct rate * p);
 void _soxr_close(struct rate * p);
 double _soxr_delay(struct rate * p);
 void _soxr_sizes(size_t * shared, size_t * channel);
+
+/* Save/restore the dynamic state of one channel (filter delay-lines, phase
+ * accumulators, sample counts); configuration is not saved, since it is
+ * recreated deterministically by _soxr_init.  _soxr_save_state with buf=0
+ * returns the number of bytes needed. */
+size_t _soxr_save_state(struct rate * p, void * buf);
+char const * _soxr_restore_state(struct rate * p, void const * buf,
+    size_t len, size_t * consumed);
 #endif
 
 #endif

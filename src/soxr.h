@@ -180,6 +180,39 @@ SOXR void         soxr_delete(soxr_t);  /* Free resources. */
 
 
 
+/* --------------------- Saving & restoring stream state ---------------------
+
+When a long stream is resampled in consecutive segments (e.g. file-by-file,
+or in different processes or at different times), naive per-segment
+resampling produces audible artefacts at the segment joins, because each
+fresh resampler lacks the previous segment's filter state and tail samples.
+The functions below allow the complete state of a stream resampler --
+including buffered (`tail') samples, filter delay-lines and phase
+accumulators -- to be saved to a byte array, from which an equivalent
+resampler may later be restored, such that the concatenated output of the
+segments is sample-for-sample identical to that of resampling the entire
+stream with a single resampler.  E.g.:
+
+  size_t len = soxr_state_size(soxr);
+  void * buf = malloc(len);
+  soxr_error_t error = soxr_save_state(soxr, buf, len);
+  ...
+  soxr = soxr_restore_state(buf, len, &error);
+
+N.B. the byte array is a binary, machine-dependent snapshot: it is valid
+only for the same libsoxr build (same version, configuration, and CPU
+features) that created it.  Any input function registered with
+soxr_set_input_fn is not preserved by a restore, and must be re-registered
+if needed. */
+
+SOXR size_t soxr_state_size(soxr_t);/* Bytes needed by soxr_save_state; 0 if
+                                       state save is not possible/supported.*/
+SOXR soxr_error_t soxr_save_state(soxr_t, void * buf, size_t buf_len);
+SOXR soxr_t soxr_restore_state(void const * buf, size_t buf_len,
+    soxr_error_t *);                 /* To report any error during restore. */
+
+
+
 /* `Short-cut', single call to resample a (probably short) signal held entirely
  * in memory.  See soxr_create and soxr_process above for parameter details.
  * Note that unlike soxr_create however, the default quality spec. for

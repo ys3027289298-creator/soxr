@@ -648,4 +648,6 @@ fn_t _soxr_vr32_cb[] = {
   (fn_t)vr_create,
   (fn_t)vr_set_io_ratio,
   (fn_t)vr_id,
+  (fn_t)0, /* State save/restore not supported for variable-rate. */
+  (fn_t)0,
 };

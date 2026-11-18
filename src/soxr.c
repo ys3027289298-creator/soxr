@@ -46,7 +46,7 @@ char const * soxr_version(void)
 
 typedef void sample_t; /* float or double */
 typedef void (* fn_t)(void);
-typedef fn_t control_block_t[10];
+typedef fn_t control_block_t[12];
 
 #define resampler_input        (*(sample_t * (*)(void *, sample_t * samples, size_t   n))p->control_block[0])
 #define resampler_process      (*(void (*)(void *, size_t))p->control_block[1])
@@ -58,6 +58,8 @@ typedef fn_t control_block_t[10];
 #define resampler_create       (*(char const * (*)(void * channel, void * shared, double io_ratio, soxr_quality_spec_t * q_spec, soxr_runtime_spec_t * r_spec, double scale))p->control_block[7])
 #define resampler_set_io_ratio (*(void (*)(void *, double io_ratio, size_t len))p->control_block[8])
 #define resampler_id           (*(char const * (*)(void))p->control_block[9])
+#define resampler_save_state   (*(size_t (*)(void *, void *))p->control_block[10])
+#define resampler_restore_state (*(char const * (*)(void *, void const *, size_t, size_t *))p->control_block[11])
 
 typedef void * resampler_t; /* For one channel. */
 typedef void * resampler_shared_t; /* Between channels. */
@@ -357,76 +359,29 @@ static void runtime_flag(char const * env_name,
 
 
 
-soxr_t soxr_create(
-  double input_rate, double output_rate,
+/* Create a resampler from an I/O ratio and already-`effective' specs (i.e.
+ * with environment overrides and datatype scaling already applied): */
+static soxr_t soxr_create0(
+  double io_ratio,
   unsigned num_channels,
   soxr_error_t * error0,
   soxr_io_spec_t const * io_spec,
   soxr_quality_spec_t const * q_spec,
   soxr_runtime_spec_t const * runtime_spec)
 {
-  double io_ratio = output_rate!=0? input_rate!=0?
-    input_rate / output_rate : -1 : input_rate!=0? -1 : 0;
-  static const float datatype_full_scale[] = {1, 1, 65536.*32768, 32768};
   soxr_t p = 0;
   soxr_error_t error = 0;
 
-#if WITH_DEV_TRACE
-#define _(x) (char)(sizeof(x)>=10? 'a'+(char)(sizeof(x)-10):'0'+(char)sizeof(x))
-  char const * e = getenv("SOXR_TRACE");
-  _soxr_trace_level = e? atoi(e) : 0;
-  {
-    static char const arch[] = {_(char), _(short), _(int), _(long), _(long long)
-      , ' ', _(float), _(double), _(long double)
-      , ' ', _(int *), _(int (*)(int))
-      , ' ', HAVE_BIGENDIAN ? 'B' : 'L'
-#if defined _OPENMP
-      , ' ', 'O', 'M', 'P'
-#endif
-      , 0};
-#undef _
-    lsx_debug("arch: %s", arch);
-  }
-#endif
-
-  if (q_spec && q_spec->e)  error = q_spec->e;
-  else if (io_spec && (io_spec->itype | io_spec->otype) >= SOXR_SPLIT * 2)
-    error = "invalid io datatype(s)";
-
-  if (!error && !(p = calloc(sizeof(*p), 1))) error = "malloc failed";
+  if (!(p = calloc(sizeof(*p), 1))) error = "malloc failed";
 
   if (p) {
     control_block_t * control_block;
 
-    p->q_spec = q_spec? *q_spec : soxr_quality_spec(SOXR_HQ, 0);
-
-    if (q_spec) { /* Backwards compatibility with original API: */
-      if (p->q_spec.passband_end > 2)
-        p->q_spec.passband_end /= 100;
-      if (p->q_spec.stopband_begin > 2)
-        p->q_spec.stopband_begin = 2 - p->q_spec.stopband_begin / 100;
-    }
-
+    p->q_spec = *q_spec;
     p->io_ratio = io_ratio;
     p->num_channels = num_channels;
-    if (io_spec)
-      p->io_spec = *io_spec;
-    else
-      p->io_spec.scale = 1;
-
-    p->runtime_spec = runtime_spec? *runtime_spec : soxr_runtime_spec(1);
-
-    runtime_num("SOXR_MIN_DFT_SIZE", 8, 15, &p->runtime_spec.log2_min_dft_size);
-    runtime_num("SOXR_LARGE_DFT_SIZE", 8, 20, &p->runtime_spec.log2_large_dft_size);
-    runtime_num("SOXR_COEFS_SIZE", 100, 800, &p->runtime_spec.coef_size_kbytes);
-    runtime_num("SOXR_NUM_THREADS", 0, 64, &p->runtime_spec.num_threads);
-    runtime_flag("SOXR_COEF_INTERP", 2, 0, &p->runtime_spec.flags);
-
-    runtime_flag("SOXR_STRICT_BUF", 1, 2, &p->runtime_spec.flags);
-    runtime_flag("SOXR_NOSMALLINTOPT", 1, 3, &p->runtime_spec.flags);
-
-    p->io_spec.scale *= datatype_full_scale[p->io_spec.otype & 3] /
-                        datatype_full_scale[p->io_spec.itype & 3];
+    p->io_spec = *io_spec;
+    p->runtime_spec = *runtime_spec;
 
     p->seed = (unsigned long)time(0) ^ (unsigned long)(size_t)p;
 
@@ -475,6 +430,86 @@ soxr_t soxr_create(
   if (error0)
     *error0 = error;
   return p;
+}
+
+
+
+soxr_t soxr_create(
+  double input_rate, double output_rate,
+  unsigned num_channels,
+  soxr_error_t * error0,
+  soxr_io_spec_t const * io_spec,
+  soxr_quality_spec_t const * q_spec,
+  soxr_runtime_spec_t const * runtime_spec)
+{
+  double io_ratio = output_rate!=0? input_rate!=0?
+    input_rate / output_rate : -1 : input_rate!=0? -1 : 0;
+  static const float datatype_full_scale[] = {1, 1, 65536.*32768, 32768};
+  soxr_io_spec_t io_spec1;
+  soxr_quality_spec_t q_spec1;
+  soxr_runtime_spec_t runtime_spec1;
+  soxr_error_t error = 0;
+
+#if WITH_DEV_TRACE
+#define _(x) (char)(sizeof(x)>=10? 'a'+(char)(sizeof(x)-10):'0'+(char)sizeof(x))
+  char const * e = getenv("SOXR_TRACE");
+  _soxr_trace_level = e? atoi(e) : 0;
+  {
+    static char const arch[] = {_(char), _(short), _(int), _(long), _(long long)
+      , ' ', _(float), _(double), _(long double)
+      , ' ', _(int *), _(int (*)(int))
+      , ' ', HAVE_BIGENDIAN ? 'B' : 'L'
+#if defined _OPENMP
+      , ' ', 'O', 'M', 'P'
+#endif
+      , 0};
+#undef _
+    lsx_debug("arch: %s", arch);
+  }
+#endif
+
+  if (q_spec && q_spec->e)  error = q_spec->e;
+  else if (io_spec && (io_spec->itype | io_spec->otype) >= SOXR_SPLIT * 2)
+    error = "invalid io datatype(s)";
+
+  if (error) {
+    if (error0)
+      *error0 = error;
+    return 0;
+  }
+
+  q_spec1 = q_spec? *q_spec : soxr_quality_spec(SOXR_HQ, 0);
+
+  if (q_spec) { /* Backwards compatibility with original API: */
+    if (q_spec1.passband_end > 2)
+      q_spec1.passband_end /= 100;
+    if (q_spec1.stopband_begin > 2)
+      q_spec1.stopband_begin = 2 - q_spec1.stopband_begin / 100;
+  }
+
+  if (io_spec)
+    io_spec1 = *io_spec;
+  else {
+    memset(&io_spec1, 0, sizeof(io_spec1));
+    io_spec1.scale = 1;
+  }
+
+  runtime_spec1 = runtime_spec? *runtime_spec : soxr_runtime_spec(1);
+
+  runtime_num("SOXR_MIN_DFT_SIZE", 8, 15, &runtime_spec1.log2_min_dft_size);
+  runtime_num("SOXR_LARGE_DFT_SIZE", 8, 20, &runtime_spec1.log2_large_dft_size);
+  runtime_num("SOXR_COEFS_SIZE", 100, 800, &runtime_spec1.coef_size_kbytes);
+  runtime_num("SOXR_NUM_THREADS", 0, 64, &runtime_spec1.num_threads);
+  runtime_flag("SOXR_COEF_INTERP", 2, 0, &runtime_spec1.flags);
+
+  runtime_flag("SOXR_STRICT_BUF", 1, 2, &runtime_spec1.flags);
+  runtime_flag("SOXR_NOSMALLINTOPT", 1, 3, &runtime_spec1.flags);
+
+  io_spec1.scale *= datatype_full_scale[io_spec1.otype & 3] /
+                    datatype_full_scale[io_spec1.itype & 3];
+
+  return soxr_create0(io_ratio, num_channels, error0,
+      &io_spec1, &q_spec1, &runtime_spec1);
 }
 
 
@@ -839,4 +874,210 @@ soxr_error_t soxr_set_error(soxr_t p, soxr_error_t error)
   if (!p->error && p->error != error) return p->error;
   p->error = error;
   return 0;
+}
+
+
+
+/* ------------------------- State save & restore ------------------------- */
+
+#define STATE_MAGIC   0x53585253u  /* "SXRS" */
+#define STATE_VERSION 1u
+
+/* Serialised header layout (all fields fixed-size, native byte-order): */
+#define STATE_HEADER_SIZE ( \
+    4 + 4 + 8 + 4 * 4 + 8 +  /* magic, version, engine, 4 x u32, io_ratio */ \
+    4 * 8 + 8 +              /* q_spec: 4 x f64, flags */ \
+    2 * 4 + 8 + 8 +          /* io_spec: itype, otype, scale, flags */ \
+    4 * 4 + 8 +              /* runtime_spec: 4 x u32, flags */ \
+    8 + 8)                   /* seed, clips */
+
+static void state_put(char ** buf, void const * src, size_t n)
+{
+  memcpy(*buf, src, n);
+  *buf += n;
+}
+
+static void state_put_u32(char ** buf, uint32_t x) {state_put(buf, &x, 4);}
+static void state_put_u64(char ** buf, uint64_t x) {state_put(buf, &x, 8);}
+static void state_put_f64(char ** buf, double   x) {state_put(buf, &x, 8);}
+
+static char const * state_get(char const ** buf, size_t * left,
+    void * dest, size_t n)
+{
+  if (*left < n)
+    return "corrupt state (truncated)";
+  memcpy(dest, *buf, n);
+  *buf += n;
+  *left -= n;
+  return 0;
+}
+
+static char const * state_get_u32(char const ** b, size_t * l, uint32_t * x)
+  {return state_get(b, l, x, 4);}
+static char const * state_get_u64(char const ** b, size_t * l, uint64_t * x)
+  {return state_get(b, l, x, 8);}
+static char const * state_get_f64(char const ** b, size_t * l, double * x)
+  {return state_get(b, l, x, 8);}
+
+
+
+size_t soxr_state_size(soxr_t p)
+{
+  size_t size = STATE_HEADER_SIZE;
+  unsigned i;
+  if (!p || p->error)
+    return 0;
+  if (!p->control_block[10])
+    return 0;
+  if (p->resamplers)
+    for (i = 0; i < p->num_channels; ++i)
+      size += resampler_save_state(p->resamplers[i], 0);
+  return size;
+}
+
+
+
+soxr_error_t soxr_save_state(soxr_t p, void * buf0, size_t buf_len)
+{
+  char * buf = (char *)buf0;
+  char engine[8] = {0};
+  unsigned i;
+
+  if (!p) return "null pointer";
+  if (p->error) return p->error;
+  if (!p->control_block[10])
+    return "state save/restore not supported with this resampling engine";
+  if (!buf || buf_len < soxr_state_size(p))
+    return "state buffer too small";
+
+  strncpy(engine, resampler_id(), sizeof(engine) - 1);
+  state_put_u32(&buf, STATE_MAGIC);
+  state_put_u32(&buf, STATE_VERSION);
+  state_put(&buf, engine, sizeof(engine));
+  state_put_u32(&buf, (uint32_t)p->num_channels);
+  state_put_u32(&buf, (uint32_t)(p->resamplers != 0));
+  state_put_u32(&buf, (uint32_t)p->flushing);
+  state_put_u32(&buf, 0); /* Reserved. */
+  state_put_f64(&buf, p->io_ratio);
+
+  state_put_f64(&buf, p->q_spec.precision);
+  state_put_f64(&buf, p->q_spec.phase_response);
+  state_put_f64(&buf, p->q_spec.passband_end);
+  state_put_f64(&buf, p->q_spec.stopband_begin);
+  state_put_u64(&buf, (uint64_t)p->q_spec.flags);
+
+  state_put_u32(&buf, (uint32_t)p->io_spec.itype);
+  state_put_u32(&buf, (uint32_t)p->io_spec.otype);
+  state_put_f64(&buf, p->io_spec.scale);
+  state_put_u64(&buf, (uint64_t)p->io_spec.flags);
+
+  state_put_u32(&buf, (uint32_t)p->runtime_spec.log2_min_dft_size);
+  state_put_u32(&buf, (uint32_t)p->runtime_spec.log2_large_dft_size);
+  state_put_u32(&buf, (uint32_t)p->runtime_spec.coef_size_kbytes);
+  state_put_u32(&buf, (uint32_t)p->runtime_spec.num_threads);
+  state_put_u64(&buf, (uint64_t)p->runtime_spec.flags);
+
+  state_put_u64(&buf, (uint64_t)p->seed);
+  state_put_u64(&buf, (uint64_t)p->clips);
+
+  if (p->resamplers)
+    for (i = 0; i < p->num_channels; ++i)
+      buf += resampler_save_state(p->resamplers[i], buf);
+
+  return 0;
+}
+
+
+
+soxr_t soxr_restore_state(void const * buf0, size_t buf_len,
+    soxr_error_t * error0)
+{
+  char const * buf = (char const *)buf0;
+  size_t left = buf_len;
+  soxr_t p = 0;
+  soxr_error_t error = 0;
+  uint32_t magic, version, num_channels, initialised, flushing, u32;
+  uint64_t u64;
+  double io_ratio;
+  soxr_quality_spec_t q_spec;
+  soxr_io_spec_t io_spec;
+  soxr_runtime_spec_t runtime_spec;
+  uint64_t seed, clips;
+  char engine[8];
+  unsigned i;
+
+  memset(&q_spec, 0, sizeof(q_spec));
+  memset(&io_spec, 0, sizeof(io_spec));
+  memset(&runtime_spec, 0, sizeof(runtime_spec));
+  memset(engine, 0, sizeof(engine));
+
+  #define GET_U32(dest) if (!error) error = state_get_u32(&buf, &left, dest)
+  #define GET_U64(dest) if (!error) error = state_get_u64(&buf, &left, dest)
+  #define GET_F64(dest) if (!error) error = state_get_f64(&buf, &left, dest)
+
+  GET_U32(&magic);
+  GET_U32(&version);
+  if (!error && magic != STATE_MAGIC)
+    error = "not a saved soxr state";
+  if (!error && version != STATE_VERSION)
+    error = "unsupported state version";
+  if (!error) error = state_get(&buf, &left, engine, sizeof(engine));
+  GET_U32(&num_channels);
+  GET_U32(&initialised);
+  GET_U32(&flushing);
+  GET_U32(&u32); /* Reserved. */
+  GET_F64(&io_ratio);
+
+  GET_F64(&q_spec.precision);
+  GET_F64(&q_spec.phase_response);
+  GET_F64(&q_spec.passband_end);
+  GET_F64(&q_spec.stopband_begin);
+  GET_U64(&u64), q_spec.flags = (unsigned long)u64;
+
+  GET_U32(&u32), io_spec.itype = (soxr_datatype_t)u32;
+  GET_U32(&u32), io_spec.otype = (soxr_datatype_t)u32;
+  GET_F64(&io_spec.scale);
+  GET_U64(&u64), io_spec.flags = (unsigned long)u64;
+
+  GET_U32(&runtime_spec.log2_min_dft_size);
+  GET_U32(&runtime_spec.log2_large_dft_size);
+  GET_U32(&runtime_spec.coef_size_kbytes);
+  GET_U32(&runtime_spec.num_threads);
+  GET_U64(&u64), runtime_spec.flags = (unsigned long)u64;
+
+  GET_U64(&seed);
+  GET_U64(&clips);
+
+  #undef GET_U32
+  #undef GET_U64
+  #undef GET_F64
+
+  if (!error)
+    p = soxr_create0(io_ratio, num_channels, &error,
+        &io_spec, &q_spec, &runtime_spec);
+
+  if (!error && strncmp(engine, resampler_id(), sizeof(engine)))
+    error = "state/resampler engine mismatch";
+  if (!error && !!initialised != (p->resamplers != 0))
+    error = "state/config mismatch";
+
+  if (!error) {
+    p->seed = (unsigned long)seed;
+    p->clips = (size_t)clips;
+    p->flushing = (int)flushing;
+    if (p->resamplers)
+      for (i = 0; !error && i < p->num_channels; ++i) {
+        size_t consumed = 0;
+        error = resampler_restore_state(p->resamplers[i], buf, left, &consumed);
+        buf += consumed;
+        left -= consumed;
+      }
+  }
+  if (!error && left)
+    error = "corrupt state (trailing data)";
+  if (error)
+    soxr_delete(p), p = 0;
+  if (error0)
+    *error0 = error;
+  return p;
 }
