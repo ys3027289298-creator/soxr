@@ -13,7 +13,7 @@ if (${BUILD_EXAMPLES} OR ${BUILD_TESTS})
 endif ()
 
 if (${BUILD_EXAMPLES})
-  list (APPEND SOURCES 1-single-block 2-stream 4-split-channels)
+  list (APPEND SOURCES 1-single-block 2-stream 4-split-channels 6-group-delay-eq)
   if (${WITH_VR32})
     list (APPEND SOURCES 5-variable-rate)
   endif ()
@@ -29,6 +29,10 @@ endforeach ()
 
 if (${BUILD_TESTS} AND ${WITH_LSR_BINDINGS})
   add_test (lsr-bindings ${BIN}1a-lsr)
+endif ()
+
+if (${BUILD_TESTS} AND ${BUILD_EXAMPLES})
+  add_test (group-delay-eq ${BIN}6-group-delay-eq)
 endif ()
 
 file (GLOB INSTALL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.[cCh])
