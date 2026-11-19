@@ -138,6 +138,7 @@ typedef struct {
   size_t half_firs_len;
   half_fir_info_t  const * doub_firs;
   size_t doub_firs_len;
+  stage_fn_t linear_stage_fn;
   stage_fn_t cubic_stage_fn;
   poly_fir_t const * poly_firs;
   fn_t * rdft_cb;

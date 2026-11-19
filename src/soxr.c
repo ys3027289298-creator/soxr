@@ -106,6 +106,9 @@ soxr_quality_spec_t soxr_quality_spec(unsigned long recipe, unsigned long flags)
   unsigned q = recipe & 0xf;                         /* TODO: move to soxr-lsr.c: */
   unsigned quality = q > SOXR_LSR2Q+2? SOXR_VHQ : q > SOXR_LSR2Q? SOXR_QQ : q;
   double rej;
+  if (quality == SOXR_QQ &&
+      (recipe & SOXR_INTERP_MASK) == SOXR_INTERP_SINC)
+    quality = SOXR_LQ; /* QQ has no FIR precision; promote for a band-limited kernel. */
   memset(p, 0, sizeof(*p));
   if (quality > SOXR_PRECISIONQ) {
     p->e = "invalid quality type";
@@ -138,6 +141,7 @@ soxr_quality_spec_t soxr_quality_spec(unsigned long recipe, unsigned long flags)
   }
   if (recipe & SOXR_STEEP_FILTER)
     p->passband_end = 1 - .01 / lsx_to_3dB(rej);
+  p->flags |= recipe & SOXR_INTERP_MASK;   /* Explicit kernel selection. */
   return spec;
 }
 
@@ -430,6 +434,11 @@ soxr_t soxr_create(
 
     p->seed = (unsigned long)time(0) ^ (unsigned long)(size_t)p;
 
+    if ((p->q_spec.flags & SOXR_KERNEL_MASK) &&
+        (p->q_spec.flags & SOXR_VR))
+      error = "interpolation kernel selection not supported with variable-rate";
+
+    if (!error) {
 #if WITH_CR32 || WITH_CR32S || WITH_VR32
     if (0
 #if WITH_VR32
@@ -469,6 +478,7 @@ soxr_t soxr_create(
 
     if (p->num_channels && io_ratio!=0)
       error = soxr_set_io_ratio(p, io_ratio, 0);
+    }
   }
   if (error)
     soxr_delete(p), p = 0;

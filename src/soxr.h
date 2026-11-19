@@ -303,6 +303,20 @@ SOXR soxr_quality_spec_t soxr_quality_spec(
 
 #define SOXR_STEEP_FILTER       0x40
 
+/* Interpolation kernel selection (recipe bits 8-9; default = AUTO).
+ * AUTO leaves the choice to the quality recipe (sinc for all precision-based
+ * qualities, cubic for SOXR_QQ).  LINEAR and CUBIC force the corresponding
+ * short, un-anti-aliased kernel at any quality; SINC forces the band-limited
+ * poly-phase FIR (at SOXR_QQ this promotes the precision to the 16-bit LQ
+ * recipe, as the quick recipe carries no FIR design parameters).  Explicit
+ * kernel selection is not available with the variable-rate engine
+ * (SOXR_VR). */
+#define SOXR_INTERP_AUTO        0x000
+#define SOXR_INTERP_LINEAR      0x100
+#define SOXR_INTERP_CUBIC       0x200
+#define SOXR_INTERP_SINC        0x300
+#define SOXR_INTERP_MASK        0x300
+
 
 
 SOXR soxr_runtime_spec_t soxr_runtime_spec(

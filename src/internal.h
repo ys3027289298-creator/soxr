@@ -58,6 +58,13 @@
 #define SOXR_MAINTAIN_3DB_PT   4u    /* Reserved for internal use. */
 #define SOXR_PROMOTE_TO_LQ    64u    /* Reserved for internal use. */
 
+/* Explicit interpolation-kernel selection (from the SOXR_INTERP_* recipe
+ * bits); 0 means the kernel is chosen by the quality recipe. */
+#define SOXR_KERNEL_MASK      0x300u
+#define SOXR_KERNEL_LINEAR    0x100u
+#define SOXR_KERNEL_CUBIC     0x200u
+#define SOXR_KERNEL_SINC      0x300u
+
 
 
 /* soxr_runtime_spec_t.flags: */

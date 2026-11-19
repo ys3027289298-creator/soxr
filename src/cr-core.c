@@ -68,6 +68,28 @@ static void cubic_stage_fn(stage_t * p, fifo_t * output_fifo)
 
 
 
+/* 2-point piecewise-linear interpolation; same time-base as cubic_stage_fn.
+ * No anti-alias filtering is possible with a kernel this short. */
+static void linear_stage_fn(stage_t * p, fifo_t * output_fifo)
+{
+  sample_t const * input = stage_read_p(p);
+  int num_in = min(stage_occupancy(p), p->input_size);
+  int i, max_num_out = 1 + (int)(num_in * p->out_in_ratio);
+  sample_t * output = fifo_reserve(output_fifo, max_num_out);
+
+  for (i = 0; p->at.integer < num_in; ++i, p->at.whole += p->step.whole) {
+    sample_t const * s = input + p->at.integer;
+    double x = p->at.fraction * (1 / MULT32);
+    output[i] = (sample_t)(p->mult * (*s + x * (s[1] - *s)));
+  }
+  assert(max_num_out - i >= 0);
+  fifo_trim_by(output_fifo, max_num_out - i);
+  fifo_read(&p->fifo, p->at.integer, NULL);
+  p->at.integer = 0;
+}
+
+
+
 #if defined __AVX__
   #define DEFINED_AVX 1
 #else
@@ -277,6 +299,7 @@ static cr_core_t const cr_core = {
 #endif
   half_firs, array_length(half_firs),
   0, 0,
+  linear_stage_fn,
   cubic_stage_fn,
   poly_firs, RDFT_CB
 };

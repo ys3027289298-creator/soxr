@@ -277,6 +277,9 @@ STATIC char const * _soxr_init(
   double       bits = q_spec->precision;
   rolloff_t const rolloff = (rolloff_t)(q_spec->flags & 3);
   int interpolator = (int)(r_spec->flags & 3) - 1;
+  unsigned const kernel = q_spec->flags & SOXR_KERNEL_MASK;
+  bool const force_quick = kernel == SOXR_KERNEL_LINEAR ||
+      kernel == SOXR_KERNEL_CUBIC;
   double const Fp0 = q_spec->passband_end, Fs0 = q_spec->stopband_begin;
   double const phase_response = q_spec->phase_response, tbw0 = Fs0-Fp0;
 
@@ -310,6 +313,8 @@ STATIC char const * _soxr_init(
 
   p->core = core;
   p->io_ratio = io_ratio;
+  if (force_quick)
+    bits = 0;      /* Route the arbitrary-ratio stage through a short kernel. */
   if (bits!=0) while (!n++) {                            /* Determine stages: */
     int try, L, M, x, maxL = interpolator > 0? 1 : mode? 2048 :
       (int)ceil(r_spec->coef_size_kbytes * 1000. / (U100_l * (int)sizeof_real));
@@ -387,8 +392,9 @@ STATIC char const * _soxr_init(
     Fp1 /= Fn1, Fs1 /= Fn1;
   }
 
-  if (bits==0 && have_arb_stage) {                /* `Quick' cubic arb stage: */
-    s->fn = core->cubic_stage_fn;
+  if (bits==0 && have_arb_stage) {  /* `Quick' cubic (or linear) arb stage: */
+    s->fn = kernel == SOXR_KERNEL_LINEAR?
+        core->linear_stage_fn : core->cubic_stage_fn;
     s->mult = multiplier, multiplier = 1;
     s->step.whole = (int64_t)(arbM * MULT32 + .5);
     s->pre_post = max(3, s->step.integer);
